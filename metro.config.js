@@ -1,14 +1,16 @@
 const { getDefaultConfig } = require('@expo/metro-config');
+const defaultConfig = getDefaultConfig(__dirname);
 const path = require('path');
 
-const config = getDefaultConfig(__dirname);
+defaultConfig.resolver.sourceExts.push('cjs');
+defaultConfig.resolver.unstable_enablePackageExports = false;
 
-config.resolver.extraNodeModules = {
-  ...(config.resolver.extraNodeModules || {}),
+defaultConfig.resolver.extraNodeModules = {
+  ...(defaultConfig.resolver.extraNodeModules || {}),
   '@env': path.resolve(__dirname, '.env'),
 };
 
-config.resolver.assetExts = config.resolver.assetExts.filter(ext => ext !== 'env');
-config.resolver.sourceExts = [...config.resolver.sourceExts, 'env'];
+defaultConfig.resolver.assetExts = defaultConfig.resolver.assetExts.filter(ext => ext !== 'env');
+defaultConfig.resolver.sourceExts = [...defaultConfig.resolver.sourceExts, 'env'];
 
-module.exports = config;
+module.exports = defaultConfig;
