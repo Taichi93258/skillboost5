@@ -1,38 +1,115 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, ActivityIndicator, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Animatable from 'react-native-animatable';
+import { Card, Button as PaperButton, Dialog, Portal, Paragraph, Title } from 'react-native-paper';
 import { db, auth } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+
+const DEFAULT_MAX_LEVELS = 5;
 
 export default function QuizScreen({ route, navigation }) {
-  const { category } = route.params;
+  const { category, level } = route.params;
+  const maxLevels = route.params.maxLevels ?? DEFAULT_MAX_LEVELS;
   const [loading, setLoading] = useState(true);
   const [question, setQuestion] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const [progressVisible, setProgressVisible] = useState(false);
+  const [progressData, setProgressData] = useState({ streakCount: 0, lastCompleted: null });
 
   useEffect(() => {
+    setVisible(false);
     const fetchQuestion = async () => {
       const today = new Date().toISOString().split('T')[0];
-      const docRef = doc(db, 'dailyQuestions', `${today}-${category}`);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setQuestion(docSnap.data());
-      } else {
-        setQuestion({ prompt: 'No question for today.', explanation: '' });
+      const docRef = doc(db, 'dailyQuestions', `${today}-${category}-${level}`);
+      try {
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setQuestion(docSnap.data());
+        } else {
+          try {
+            const functions = getFunctions();
+            const generate = httpsCallable(functions, 'generateQuestion');
+            const { data } = await generate({ category, level });
+            setQuestion(data);
+          } catch {
+            setQuestion({ prompt: '本日の問題はありません。', explanation: '' });
+          }
+        }
+      } catch (error) {
+        if (error.code === 'unavailable') {
+          try {
+            const cacheSnap = await getDoc(docRef, { source: 'cache' });
+            if (cacheSnap.exists()) {
+              setQuestion(cacheSnap.data());
+            } else {
+              setQuestion({ prompt: 'オフライン時にキャッシュされた問題はありません。', explanation: '' });
+            }
+          } catch (cacheError) {
+            if (cacheError.code === 'unavailable') {
+              setQuestion({ prompt: 'オフライン時にキャッシュされた問題はありません。', explanation: '' });
+            } else {
+              console.warn('Error fetching question from cache:', cacheError);
+              setQuestion({ prompt: '現在、問題を読み込めません。', explanation: '' });
+            }
+          }
+        } else {
+          console.warn('Error fetching question:', error);
+          setQuestion({ prompt: '現在、問題を読み込めません。', explanation: '' });
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchQuestion();
-  }, [category]);
+  }, [category, level]);
 
   const handleComplete = async () => {
     const user = auth.currentUser;
     if (!user) return;
     try {
-      const progressRef = doc(db, 'progress', user.uid);
-      const today = new Date().toISOString().split('T')[0];
-      await setDoc(progressRef, { lastCompleted: today }, { merge: true });
-      navigation.navigate('Progress');
+    const progressRef = doc(db, 'progress', user.uid);
+    const today = new Date().toISOString().split('T')[0];
+
+    const progressSnap = await getDoc(progressRef);
+    let streakCount = 1;
+    let completedCategoriesMap = {};
+    let completedLevelsMap = {};
+    if (progressSnap.exists()) {
+      const data = progressSnap.data();
+      const prevLast = data.lastCompleted;
+      const prevStreak = data.streakCount || 0;
+      const yesterday = new Date(Date.now() - 86400000)
+        .toISOString()
+        .split('T')[0];
+      if (prevLast === yesterday) {
+        streakCount = prevStreak + 1;
+      }
+      completedCategoriesMap = data.completedCategories || {};
+      completedLevelsMap = data.completedLevels || {};
+    }
+    if (!completedLevelsMap[category]) {
+      completedLevelsMap[category] = {};
+    }
+    completedLevelsMap[category][level] = true;
+    const totalLevels = Object.keys(completedLevelsMap[category]).length;
+    completedCategoriesMap[category] = totalLevels === maxLevels;
+
+    await setDoc(
+      progressRef,
+      {
+        lastCompleted: today,
+        streakCount,
+        completedCategories: completedCategoriesMap,
+        completedLevels: completedLevelsMap,
+      },
+      { merge: true }
+    );
+    setProgressData({ streakCount, lastCompleted: today });
+    setProgressVisible(true);
     } catch (e) {
-      Alert.alert('Error', 'Could not record progress.');
+      Alert.alert('エラー', '進捗を記録できませんでした。');
     }
   };
 
@@ -45,18 +122,65 @@ export default function QuizScreen({ route, navigation }) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.category}>{category}</Text>
-      <Text style={styles.prompt}>{question.prompt}</Text>
-      {question.explanation ? <Text style={styles.explanation}>{question.explanation}</Text> : null}
-      <Button title="Mark as Complete" onPress={handleComplete} />
-    </View>
+    <LinearGradient colors={['#36d1dc', '#5b86e5']} style={styles.gradientBackground}>
+      <Animatable.View animation="fadeInDown" style={styles.container}>
+        <Animatable.View animation="fadeInUp" delay={200}>
+          <Card style={styles.card}>
+            <LinearGradient colors={['#5b86e5', '#2193b0']} style={styles.cardHeaderGradient}>
+              <Title style={styles.cardHeaderText}>{category}</Title>
+            </LinearGradient>
+            <Card.Content>
+              <Paragraph style={styles.prompt}>{question.prompt}</Paragraph>
+            </Card.Content>
+          </Card>
+        </Animatable.View>
+        {question.explanation && (
+          <Animatable.View animation="fadeInUp" delay={400}>
+            <PaperButton mode="outlined" onPress={() => setVisible(true)} style={styles.button}>
+              回答を見る
+            </PaperButton>
+          </Animatable.View>
+        )}
+        <Portal>
+          <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+            <Dialog.Title>回答</Dialog.Title>
+            <Dialog.Content>
+              <Paragraph>{question.explanation}</Paragraph>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <PaperButton onPress={() => setVisible(false)}>閉じる</PaperButton>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+        <Animatable.View animation="bounceIn" delay={600}>
+          <PaperButton mode="contained" onPress={handleComplete} style={styles.completeButton}>
+            完了する
+          </PaperButton>
+        </Animatable.View>
+        <Portal>
+          <Dialog visible={progressVisible} onDismiss={() => setProgressVisible(false)}>
+            <Dialog.Title>進捗状況</Dialog.Title>
+            <Dialog.Content>
+              <Paragraph>連続学習日数: {progressData.streakCount}日</Paragraph>
+              <Paragraph>最終学習日: {progressData.lastCompleted}</Paragraph>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <PaperButton onPress={() => setProgressVisible(false)}>閉じる</PaperButton>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+      </Animatable.View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  category: { fontSize: 20, fontWeight: 'bold', marginBottom: 8 },
+  gradientBackground: { flex: 1 },
+  container: { flex: 1, padding: 16 },
+  cardHeaderGradient: { padding: 12, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
+  cardHeaderText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
   prompt: { fontSize: 18, marginBottom: 8 },
-  explanation: { fontSize: 16, color: '#555', marginBottom: 16 },
+  card: { marginBottom: 16 },
+  button: { marginVertical: 8 },
+  completeButton: { marginTop: 16 },
 });
