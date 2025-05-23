@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 import {
@@ -8,33 +8,44 @@ import {
   Paragraph,
   Button as PaperButton,
   ActivityIndicator as PaperIndicator,
+  TextInput,
 } from 'react-native-paper';
 import { auth } from '../firebase';
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        navigation.replace('Categories');
-      } else {
-        setLoading(false);
-      }
-    });
-    return unsubscribe;
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          navigation.replace('Categories');
+        } else {
+          setLoading(false);
+        }
+      });
+      return unsubscribe;
+    }, [navigation])
+  );
 
   const handleLogin = async () => {
     setLoading(true);
     try {
-      await signInAnonymously(auth);
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (e) {
       console.error(e);
+      Alert.alert('ログイン失敗', e.message);
       setLoading(false);
     }
   };
+
 
   if (loading) {
     return (
@@ -53,10 +64,26 @@ export default function LoginScreen({ navigation }) {
           <Card.Content>
             <Title style={styles.title}>SkillBoost5へようこそ</Title>
             <Paragraph style={styles.subtitle}>学習を始めましょう！</Paragraph>
+            <TextInput
+              label="メールアドレス"
+              value={email}
+              onChangeText={setEmail}
+              style={{ marginBottom: 8 }}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <TextInput
+              label="パスワード"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              style={{ marginBottom: 8 }}
+            />
           </Card.Content>
           <Card.Actions>
+            <PaperButton onPress={() => navigation.navigate('Register')}>新規登録</PaperButton>
             <PaperButton mode="contained" onPress={handleLogin} style={styles.button}>
-              学習を始める
+              ログイン
             </PaperButton>
           </Card.Actions>
         </Card>
