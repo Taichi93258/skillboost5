@@ -6,10 +6,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
 import CategoryScreen from './src/screens/CategoryScreen';
 import LevelScreen from './src/screens/LevelScreen';
 import QuizScreen from './src/screens/QuizScreen';
 import ProgressScreen from './src/screens/ProgressScreen';
+import UserInfoScreen from './src/screens/UserInfoScreen';
 import SplashScreen from './src/screens/SplashScreen';
 
 import { registerForPushNotificationsAsync, scheduleDailyNotification } from './src/notifications';
@@ -38,7 +40,13 @@ export default function App() {
           >
             <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Categories" component={CategoryScreen} options={{ title: 'カテゴリ' }} />
+            <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="Categories"
+              component={CategoryScreen}
+              options={{ title: 'カテゴリ', headerBackVisible: false }}
+            />
+            <Stack.Screen name="UserInfo" component={UserInfoScreen} options={{ title: 'ユーザー情報' }} />
             <Stack.Screen
               name="Levels"
               component={LevelScreen}

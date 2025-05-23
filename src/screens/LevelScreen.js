@@ -1,6 +1,6 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 import { Avatar, IconButton, List, Title } from 'react-native-paper';
@@ -86,43 +86,54 @@ export default function LevelScreen({ route, navigation }) {
 
   return (
     <LinearGradient colors={['#2575fc', '#6a11cb']} style={styles.gradientBackground}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-        <Animatable.View animation="fadeInDown" duration={800}>
-          <Title style={styles.header}>「{category}」のレベルを選択してください</Title>
-        </Animatable.View>
-        <List.Section>
-          <Animatable.View animation="fadeInUp" delay={200}>
-            <List.Item
-              title="Top"
-              titleStyle={styles.itemText}
-              onPress={() => navigation.popToTop()}
-              left={(props) => <Avatar.Icon {...props} icon="home" />}
-            />
-          </Animatable.View>
-          {levels.map((item, idx) => (
-            <Animatable.View key={item.toString()} animation="fadeInUp" delay={300 + idx * 50}>
-              <List.Item
-                title={`レベル ${item}`}
-                titleStyle={styles.itemText}
-                onPress={() => navigation.push('Quiz', { category, level: item, maxLevels: levels.length })}
-                left={(props) => <Avatar.Icon {...props} icon="star" />}
-                right={(props) => (
-                  <IconButton
-                    {...props}
-                    icon={
-                      completedLevels[item]
-                        ? 'check-circle'
-                        : 'checkbox-blank-circle-outline'
-                    }
-                    color="#fff"
-                    onPress={() => toggleLevel(item)}
-                  />
-                )}
-              />
+      <List.Section style={styles.listSection}>
+        <FlatList
+          style={styles.scrollView}
+          contentContainerStyle={styles.contentContainer}
+          ListHeaderComponent={() => (
+            <Animatable.View animation="fadeInDown" duration={800} useNativeDriver>
+              <Title style={styles.header}>「{category}」のレベルを選択してください</Title>
             </Animatable.View>
-          ))}
-        </List.Section>
-      </ScrollView>
+          )}
+          data={['Top', ...levels]}
+          keyExtractor={(item, index) => (index === 0 ? 'top' : item.toString())}
+          renderItem={({ item, index }) => (
+            <Animatable.View
+              animation="fadeInUp"
+              delay={index === 0 ? 200 : 300 + (index - 1) * 50}
+              useNativeDriver
+            >
+              {index === 0 ? (
+                <List.Item
+                  title="Top"
+                  titleStyle={styles.itemText}
+                  onPress={() => navigation.popToTop()}
+                  left={(props) => <Avatar.Icon {...props} icon="home" />}
+                />
+              ) : (
+                <List.Item
+                  title={`レベル ${item}`}
+                  titleStyle={styles.itemText}
+                  onPress={() => navigation.push('Quiz', { category, level: item, maxLevels: levels.length })}
+                  left={(props) => <Avatar.Icon {...props} icon="star" />}
+                  right={(props) => (
+                    <IconButton
+                      {...props}
+                      icon={
+                        completedLevels[item]
+                          ? 'check-circle'
+                          : 'checkbox-blank-circle-outline'
+                      }
+                      color="#fff"
+                      onPress={() => toggleLevel(item)}
+                    />
+                  )}
+                />
+              )}
+            </Animatable.View>
+          )}
+        />
+      </List.Section>
     </LinearGradient>
   );
 }
@@ -130,6 +141,7 @@ export default function LevelScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   gradientBackground: { flex: 1 },
   scrollView: { flex: 1 },
+  listSection: { flex: 1 },
   contentContainer: { padding: 16 },
   header: { fontSize: 20, fontWeight: 'bold', marginBottom: 16, color: '#fff' },
   itemText: { fontSize: 18, color: '#fff' },

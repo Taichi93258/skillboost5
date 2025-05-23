@@ -3,12 +3,21 @@ import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
+import { auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+
 export default function SplashScreen({ navigation }) {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigation.replace('Login');
-    }, 1500);
-    return () => clearTimeout(timer);
+    let timer;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      timer = setTimeout(() => {
+        navigation.replace(user ? 'Categories' : 'Login');
+      }, 1500);
+    });
+    return () => {
+      unsubscribe();
+      if (timer) clearTimeout(timer);
+    };
   }, [navigation]);
 
   return (
