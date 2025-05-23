@@ -21,7 +21,7 @@ export default function QuizScreen({ route, navigation }) {
   useEffect(() => {
     setVisible(false);
     const fetchQuestion = async () => {
-      const today = new Date().toISOString().split('T')[0];
+      const today = '2025-05-22';
       const docRef = doc(db, 'dailyQuestions', `${today}-${category}-${level}`);
       try {
         const docSnap = await getDoc(docRef);
