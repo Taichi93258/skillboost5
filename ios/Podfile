@@ -19,6 +19,7 @@ target 'skillboost5' do
   use_expo_modules!
 
   # Use local Expo podspec to satisfy ExpoModulesCore dependency without remote spec repo
+  pod 'ExpoModulesCore', path: '../node_modules/expo-modules-core'
   pod 'Expo', path: '../node_modules/expo'
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
