@@ -1,7 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
+import { useHeaderHeight } from '@react-navigation/elements';
 import {
   Card,
   Title,
@@ -18,6 +20,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function LoginScreen({ navigation }) {
+  const headerHeight = useHeaderHeight();
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,7 +44,7 @@ export default function LoginScreen({ navigation }) {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (e) {
       console.error(e);
-      Alert.alert('ログイン失敗', e.message);
+      Alert.alert('ログイン失敗', 'メールアドレスまたはパスワードが正しくありません');
       setLoading(false);
     }
   };
@@ -49,17 +52,23 @@ export default function LoginScreen({ navigation }) {
 
   if (loading) {
     return (
-      <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
-        <View style={styles.container}>
-          <PaperIndicator animating={true} size="large" />
-        </View>
-      </LinearGradient>
+      <SafeAreaView style={styles.safeArea}>
+        <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
+          <View style={styles.container}>
+            <PaperIndicator animating size="large" />
+          </View>
+        </LinearGradient>
+      </SafeAreaView>
     );
   }
 
   return (
-    <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
-      <Animatable.View animation="fadeInDown" style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
+      <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
+        <Animatable.View
+          animation="fadeInDown"
+          style={[styles.container, { transform: [{ translateY: -headerHeight / 2 }] }]}
+        >
         <Card style={styles.card}>
           <Card.Content>
             <Title style={styles.title}>SkillBoost5へようこそ</Title>
@@ -88,11 +97,13 @@ export default function LoginScreen({ navigation }) {
           </Card.Actions>
         </Card>
       </Animatable.View>
-    </LinearGradient>
+      </LinearGradient>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1 },
   gradientBackground: { flex: 1 },
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   title: { fontSize: 24, marginBottom: 8 },
