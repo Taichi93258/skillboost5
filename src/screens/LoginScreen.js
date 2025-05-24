@@ -95,6 +95,11 @@ export default function LoginScreen({ navigation }) {
               ログイン
             </PaperButton>
           </Card.Actions>
+          <Card.Actions>
+            <PaperButton onPress={() => navigation.navigate('ForgotPassword')}>
+              パスワードを忘れた場合
+            </PaperButton>
+          </Card.Actions>
         </Card>
       </Animatable.View>
       </LinearGradient>
