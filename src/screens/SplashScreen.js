@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View, Alert, Linking } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
@@ -39,17 +40,23 @@ export default function SplashScreen({ navigation }) {
   }, [navigation]);
 
   return (
-    <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
-      <View style={styles.container}>
-        <Animatable.Text animation="bounceIn" iterationCount={1} style={styles.title}>
-          SkillBoost5
-        </Animatable.Text>
-      </View>
-    </LinearGradient>
+    <SafeAreaView style={styles.safeArea}>
+      <LinearGradient colors={[
+        '#6a11cb',
+        '#2575fc',
+      ]} style={styles.gradientBackground}>
+        <View style={styles.container}>
+          <Animatable.Text animation="bounceIn" iterationCount={1} style={styles.title}>
+            SkillBoost5
+          </Animatable.Text>
+        </View>
+      </LinearGradient>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1 },
   gradientBackground: { flex: 1 },
   container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 36, fontWeight: 'bold', color: '#fff' },
