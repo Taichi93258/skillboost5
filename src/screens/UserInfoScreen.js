@@ -1,26 +1,14 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
-import { Title, Paragraph, TextInput, Button, ActivityIndicator as PaperIndicator } from 'react-native-paper';
+import { useHeaderHeight } from '@react-navigation/elements';
+import { LinearGradient } from 'expo-linear-gradient';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { Alert, StyleSheet } from 'react-native';
+import * as Animatable from 'react-native-animatable';
+import { Card, Button as PaperButton, Paragraph, Title } from 'react-native-paper';
 import { auth } from '../firebase';
-import { updateEmail, sendPasswordResetEmail } from 'firebase/auth';
 
 export default function UserInfoScreen() {
+  const headerHeight = useHeaderHeight();
   const user = auth.currentUser;
-  const [newEmail, setNewEmail] = useState(user?.email || '');
-  const [loading, setLoading] = useState(false);
-
-  const handleUpdateEmail = async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      await updateEmail(user, newEmail);
-      Alert.alert('更新完了', 'メールアドレスを更新しました');
-    } catch (e) {
-      Alert.alert('更新失敗', e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handlePasswordReset = async () => {
     if (!user || !user.email) return;
@@ -37,29 +25,41 @@ export default function UserInfoScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Title>ユーザー情報</Title>
-      <Paragraph>ニックネーム: {user.displayName || ''}</Paragraph>
-      <TextInput
-        label="メールアドレス"
-        value={newEmail}
-        onChangeText={setNewEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        style={styles.input}
-      />
-      <Button mode="contained" onPress={handleUpdateEmail} disabled={loading} style={styles.button}>
-        {loading ? <PaperIndicator animating size="small" /> : 'メールアドレスを更新'}
-      </Button>
-      <Button onPress={handlePasswordReset} style={styles.button}>
-        パスワードをリセット
-      </Button>
-    </View>
+    <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
+      <Animatable.View
+        animation="fadeInDown"
+        style={[
+          styles.container,
+          { justifyContent: 'flex-start', marginTop: headerHeight * 2.5 },
+        ]}
+      >
+        <Card style={styles.card}>
+          <Card.Content>
+            <Title style={styles.title}>ユーザー情報</Title>
+            <Paragraph style={styles.subtitle}>ニックネーム: {user.displayName || ''}</Paragraph>
+            <Paragraph style={styles.subtitle}>メールアドレス: {user.email || ''}</Paragraph>
+          </Card.Content>
+          <Card.Actions>
+            <PaperButton
+              mode="contained"
+              icon="lock-reset"
+              onPress={handlePasswordReset}
+              style={styles.button}
+            >
+              パスワードをリセット
+            </PaperButton>
+          </Card.Actions>
+        </Card>
+      </Animatable.View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  input: { marginBottom: 16 },
-  button: { marginTop: 8 },
+  gradientBackground: { flex: 1 },
+  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
+  title: { fontSize: 24, marginBottom: 8 },
+  subtitle: { fontSize: 16, marginBottom: 16 },
+  card: { width: '100%', maxWidth: 400, },
+  button: { marginLeft: 'auto' },
 });

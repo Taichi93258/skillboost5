@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
+import { useHeaderHeight } from '@react-navigation/elements';
 import {
   Card,
   Title,
@@ -14,6 +16,7 @@ import { auth } from '../firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 export default function RegisterScreen({ navigation }) {
+  const headerHeight = useHeaderHeight();
   const [loading, setLoading] = useState(false);
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
@@ -39,17 +42,23 @@ export default function RegisterScreen({ navigation }) {
 
   if (loading) {
     return (
-      <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
-        <View style={styles.container}>
-          <PaperIndicator animating size="large" />
-        </View>
-      </LinearGradient>
+      <SafeAreaView style={styles.safeArea}>
+        <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
+          <View style={styles.container}>
+            <PaperIndicator animating size="large" />
+          </View>
+        </LinearGradient>
+      </SafeAreaView>
     );
   }
 
   return (
-    <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
-      <Animatable.View animation="fadeInDown" style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
+      <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
+        <Animatable.View
+          animation="fadeInDown"
+          style={[styles.container, { transform: [{ translateY: -headerHeight / 2 }] }]}
+        >
         <Card style={styles.card}>
           <Card.Content>
             <Title style={styles.title}>新規登録</Title>
@@ -85,10 +94,12 @@ export default function RegisterScreen({ navigation }) {
         </Card>
       </Animatable.View>
     </LinearGradient>
+  </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1 },
   gradientBackground: { flex: 1 },
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   title: { fontSize: 24, marginBottom: 8 },
