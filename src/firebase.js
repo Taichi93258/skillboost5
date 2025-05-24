@@ -51,3 +51,8 @@ if (__DEV__ && FIREBASE_USE_EMULATOR === 'true' && Constants.appOwnership !== 'e
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
   connectFirestoreEmulator(db, '127.0.0.1', 8080);
 }
+
+export const actionCodeSettings = {
+  url: `https://${FIREBASE_AUTH_DOMAIN}`,
+  handleCodeInApp: true,
+};

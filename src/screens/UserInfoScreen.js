@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Title, Paragraph, TextInput, Button, ActivityIndicator as PaperIndicator, Portal, Modal } from 'react-native-paper';
-import { auth } from '../firebase';
-import { updateEmail, sendPasswordResetEmail } from 'firebase/auth';
+import { auth, actionCodeSettings } from '../firebase';
+import { verifyBeforeUpdateEmail, sendPasswordResetEmail } from 'firebase/auth';
 
 export default function UserInfoScreen() {
   const user = auth.currentUser;
@@ -14,10 +14,13 @@ export default function UserInfoScreen() {
     if (!user) return;
     setLoading(true);
     try {
-      await updateEmail(user, newEmail);
-      Alert.alert('更新完了', 'メールアドレスを更新しました');
+      await verifyBeforeUpdateEmail(user, newEmail, actionCodeSettings);
+      Alert.alert(
+        '確認メール送信',
+        '新しいメールアドレスに検証用リンクを送信しました。メールを開いてリンクをクリックしてください。'
+      );
     } catch (e) {
-      Alert.alert('更新失敗', e.message);
+      Alert.alert('送信失敗', e.message);
     } finally {
       setLoading(false);
     }

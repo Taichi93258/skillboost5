@@ -1,12 +1,30 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Alert, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
 import { auth } from '../firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, applyActionCode } from 'firebase/auth';
 
 export default function SplashScreen({ navigation }) {
+  useEffect(() => {
+    (async () => {
+      const url = await Linking.getInitialURL();
+      if (url) {
+        const oobCode = new URL(url).searchParams.get('oobCode');
+        if (oobCode) {
+          try {
+            await applyActionCode(auth, oobCode);
+            await auth.currentUser.reload();
+            Alert.alert('認証完了', 'メールアドレスの認証が完了しました');
+          } catch (e) {
+            Alert.alert('認証失敗', e.message);
+          }
+        }
+      }
+    })();
+  }, []);
+
   useEffect(() => {
     let timer;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
