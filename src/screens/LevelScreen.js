@@ -107,7 +107,7 @@ export default function LevelScreen({ route, navigation }) {
                 <List.Item
                   title="Top"
                   titleStyle={styles.itemText}
-                  onPress={() => navigation.popToTop()}
+                  onPress={() => navigation.navigate('Categories')}
                   left={(props) => <Avatar.Icon {...props} icon="home" />}
                 />
               ) : (
