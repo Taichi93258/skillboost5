@@ -16,7 +16,17 @@ export default function UserInfoScreen() {
       await sendPasswordResetEmail(auth, user.email);
       Alert.alert('送信完了', 'パスワードリセット用のメールを送信しました');
     } catch (e) {
-      Alert.alert('エラー', e.message);
+      const errorMessage = (() => {
+        switch (e.code) {
+          case 'auth/invalid-email':
+            return '有効なメールアドレスを入力してください';
+          case 'auth/user-not-found':
+            return '指定されたメールアドレスのユーザーは存在しません';
+          default:
+            return '送信に失敗しました';
+        }
+      })();
+      Alert.alert('エラー', errorMessage);
     }
   };
 

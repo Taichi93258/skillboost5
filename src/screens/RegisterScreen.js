@@ -34,7 +34,19 @@ export default function RegisterScreen({ navigation }) {
       navigation.replace('Categories');
     } catch (e) {
       console.error(e);
-      Alert.alert('登録失敗', e.message);
+      const errorMessage = (() => {
+        switch (e.code) {
+          case 'auth/email-already-in-use':
+            return 'このメールアドレスは既に使用されています';
+          case 'auth/invalid-email':
+            return '有効なメールアドレスを入力してください';
+          case 'auth/weak-password':
+            return 'パスワードは6文字以上にしてください';
+          default:
+            return '登録に失敗しました';
+        }
+      })();
+      Alert.alert('登録失敗', errorMessage);
     } finally {
       setLoading(false);
     }
