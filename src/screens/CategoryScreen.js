@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useLayoutEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, FlatList, TouchableWithoutFeedback } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 import {
@@ -81,6 +82,10 @@ export default function CategoryScreen({ navigation }) {
     });
   }, [navigation, sidebarVisible]);
 
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: !loadingProgress });
+  }, [navigation, loadingProgress]);
+
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -145,11 +150,13 @@ export default function CategoryScreen({ navigation }) {
 
   if (loadingProgress) {
     return (
-      <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
-        <View style={styles.loadingContainer}>
-          <PaperIndicator animating size="large" color="#fff" />
-        </View>
-      </LinearGradient>
+      <SafeAreaView style={styles.safeArea}>
+        <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradientBackground}>
+          <View style={styles.loadingContainer}>
+            <PaperIndicator animating size="large" color="#fff" />
+          </View>
+        </LinearGradient>
+      </SafeAreaView>
     );
   }
 
@@ -250,6 +257,7 @@ export default function CategoryScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1 },
   gradientBackground: { flex: 1 },
   container: { flex: 1, padding: 16 },
   header: { fontSize: 20, fontWeight: 'bold', marginBottom: 16, color: '#fff' },
