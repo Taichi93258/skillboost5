@@ -41,6 +41,7 @@ const persistence =
     : getReactNativePersistence(AsyncStorage);
 
 export const auth = initializeAuth(app, { persistence });
+auth.languageCode = 'ja';
 export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
   useFetchStreams: false,
