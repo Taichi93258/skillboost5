@@ -7,6 +7,7 @@ import { Provider as PaperProvider } from 'react-native-paper';
 
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
+import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import CategoryScreen from './src/screens/CategoryScreen';
 import LevelScreen from './src/screens/LevelScreen';
 import QuizScreen from './src/screens/QuizScreen';
@@ -41,6 +42,7 @@ export default function App() {
             <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
             <Stack.Screen
               name="Categories"
               component={CategoryScreen}
