@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useLayoutEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, FlatList, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, Animated, FlatList, TouchableWithoutFeedback, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
@@ -77,7 +77,6 @@ export default function CategoryScreen({ navigation }) {
           }}
         />
       ),
-      headerRight: () => <IconButton icon="logout" color="#fff" onPress={handleSignOut} />,
       headerBackVisible: false,
     });
   }, [navigation, sidebarVisible]);
@@ -188,6 +187,23 @@ export default function CategoryScreen({ navigation }) {
                   titleStyle={styles.sidebarItemText}
                   left={(props) => <List.Icon {...props} icon="account" />}
                   onPress={() => closeSidebarAndNavigate('UserInfo')}
+                />
+                <List.Item
+                  title="ログアウト"
+                  titleStyle={styles.sidebarItemText}
+                  left={(props) => (
+                    <List.Icon
+                      {...props}
+                      icon="logout"
+                      style={[props.style, { transform: [{ rotate: '180deg' }] }]}
+                    />
+                  )}
+                  onPress={() =>
+                    Alert.alert('ログアウトしますか？', '', [
+                      { text: 'キャンセル', style: 'cancel' },
+                      { text: 'はい', onPress: handleSignOut },
+                    ])
+                  }
                 />
               </List.Section>
             </Animatable.View>
