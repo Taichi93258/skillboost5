@@ -44,8 +44,16 @@ export default function ProgressScreen() {
             <Title style={styles.headerGradientText}>進捗状況</Title>
           </LinearGradient>
           <Card.Content>
-            <Paragraph style={styles.text}>連続学習日数: {progress.streakCount}日</Paragraph>
-            <Paragraph style={styles.text}>最終学習日: {progress.lastCompleted || '-'}</Paragraph>
+            <View style={styles.statsContainer}>
+              <View style={styles.statItem}>
+                <Title style={styles.statNumber}>{progress.streakCount}日</Title>
+                <Paragraph style={styles.statLabel}>連続学習日数</Paragraph>
+              </View>
+              <View style={styles.statItem}>
+                <Title style={styles.statNumber}>{progress.lastCompleted || '-'}</Title>
+                <Paragraph style={styles.statLabel}>最終学習日</Paragraph>
+              </View>
+            </View>
           </Card.Content>
         </Card>
       </Animatable.View>
@@ -59,5 +67,13 @@ const styles = StyleSheet.create({
   cardHeaderGradient: { padding: 12, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
   headerGradientText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
   text: { fontSize: 16, marginBottom: 8 },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 16,
+  },
+  statItem: { alignItems: 'center' },
+  statNumber: { fontSize: 24, fontWeight: 'bold' },
+  statLabel: { fontSize: 14, color: '#555' },
   card: { width: '100%', marginBottom: 16 },
 });

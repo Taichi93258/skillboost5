@@ -5,7 +5,7 @@ import * as Animatable from 'react-native-animatable';
 import { Card, Button as PaperButton, Dialog, Portal, Paragraph, Title } from 'react-native-paper';
 import { db, auth } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { DAILY_QUESTION_DATE } from '@env';
 
 const DEFAULT_MAX_LEVELS = 5;
 
@@ -21,21 +21,14 @@ export default function QuizScreen({ route, navigation }) {
   useEffect(() => {
     setVisible(false);
     const fetchQuestion = async () => {
-      const today = '2025-05-22';
-      const docRef = doc(db, 'dailyQuestions', `${today}-${category}-${level}`);
+    const date = DAILY_QUESTION_DATE;
+    const docRef = doc(db, 'dailyQuestions', `${date}-${category}-${level}`);
       try {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setQuestion(docSnap.data());
         } else {
-          try {
-            const functions = getFunctions();
-            const generate = httpsCallable(functions, 'generateQuestion');
-            const { data } = await generate({ category, level });
-            setQuestion(data);
-          } catch {
-            setQuestion({ prompt: '本日の問題はありません。', explanation: '' });
-          }
+          setQuestion({ prompt: '本日の問題はありません。', explanation: '' });
         }
       } catch (error) {
         if (error.code === 'unavailable') {
@@ -161,8 +154,16 @@ export default function QuizScreen({ route, navigation }) {
           <Dialog visible={progressVisible} onDismiss={() => setProgressVisible(false)}>
             <Dialog.Title>進捗状況</Dialog.Title>
             <Dialog.Content>
-              <Paragraph>連続学習日数: {progressData.streakCount}日</Paragraph>
-              <Paragraph>最終学習日: {progressData.lastCompleted}</Paragraph>
+              <View style={styles.statsContainer}>
+                <View style={styles.statItem}>
+                  <Title style={styles.statNumber}>{progressData.streakCount}日</Title>
+                  <Paragraph style={styles.statLabel}>連続学習日数</Paragraph>
+                </View>
+                <View style={styles.statItem}>
+                  <Title style={styles.statNumber}>{progressData.lastCompleted}</Title>
+                  <Paragraph style={styles.statLabel}>最終学習日</Paragraph>
+                </View>
+              </View>
             </Dialog.Content>
             <Dialog.Actions>
               <PaperButton onPress={() => setProgressVisible(false)}>閉じる</PaperButton>
@@ -183,4 +184,12 @@ const styles = StyleSheet.create({
   card: { marginBottom: 16 },
   button: { marginVertical: 8 },
   completeButton: { marginTop: 16 },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 16,
+  },
+  statItem: { alignItems: 'center' },
+  statNumber: { fontSize: 24, fontWeight: 'bold' },
+  statLabel: { fontSize: 14, color: '#555' },
 });
