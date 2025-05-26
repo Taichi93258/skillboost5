@@ -10,6 +10,7 @@ import {
   IconButton,
   Card,
   Paragraph,
+  Badge,
   ActivityIndicator as PaperIndicator,
 } from 'react-native-paper';
 import { db, auth } from '../firebase';
@@ -27,6 +28,19 @@ const categories = [
   '組織行動論・人間関係',
   '法務・ビジネス法基礎',
 ];
+
+// icon mapping for each category (MaterialCommunityIcons)
+const categoryIcons = {
+  'ビジネストレンド': 'trending-up',
+  'IT': 'laptop',
+  '健康': 'heart-pulse',
+  '経済・金融': 'bank',
+  '国際情勢・時事': 'earth',
+  'マーケティング・消費者行動': 'bullhorn',
+  'プレゼンテーション・論理思考': 'presentation',
+  '組織行動論・人間関係': 'account-group',
+  '法務・ビジネス法基礎': 'gavel',
+};
 
 export default function CategoryScreen({ navigation }) {
   const [completedCategories, setCompletedCategories] = useState({});
@@ -212,12 +226,16 @@ export default function CategoryScreen({ navigation }) {
         <Card style={styles.card}>
           <Card.Content>
             <Title style={styles.headerDark}>進捗状況</Title>
-            <Paragraph style={styles.paragraphDark}>
-              連続学習日数: {progress.streakCount}日
-            </Paragraph>
-            <Paragraph style={styles.paragraphDark}>
-              最終学習日: {progress.lastCompleted || '-'}
-            </Paragraph>
+            <View style={styles.statsContainer}>
+              <View style={styles.statItem}>
+                <Title style={styles.statNumber}>{progress.streakCount}日</Title>
+                <Paragraph style={styles.statLabel}>連続学習日数</Paragraph>
+              </View>
+              <View style={styles.statItem}>
+                <Title style={styles.statNumber}>{progress.lastCompleted || '-'}</Title>
+                <Paragraph style={styles.statLabel}>最終学習日</Paragraph>
+              </View>
+            </View>
             <View style={styles.progressContainer}>
               <Animated.View
                 style={[
@@ -237,36 +255,28 @@ export default function CategoryScreen({ navigation }) {
           </Card.Content>
         </Card>
         <Title style={styles.header}>カテゴリを選択してください</Title>
-        <List.Section style={styles.listSection}>
-          <FlatList
-            style={styles.scrollView}
-            data={categories}
-            keyExtractor={(item) => item}
-            renderItem={({ item, index }) => (
-              <Animatable.View animation="fadeInUp" delay={200 + index * 100} useNativeDriver>
-                <List.Item
-                  style={styles.item}
-                  title={item}
-                  titleStyle={styles.itemText}
-                  onPress={() => navigation.push('Levels', { category: item })}
-                  left={(props) => <Avatar.Icon {...props} icon="folder" />}
-                  right={(props) => (
-                    <IconButton
-                      {...props}
-                      icon={
-                        completedCategories[item]
-                          ? 'check-circle'
-                          : 'checkbox-blank-circle-outline'
-                      }
-                      color="#fff"
-                      onPress={() => toggleCategory(item)}
-                    />
-                  )}
-                />
-              </Animatable.View>
-            )}
-          />
-        </List.Section>
+        <FlatList
+          data={categories}
+          keyExtractor={(item) => item}
+          numColumns={2}
+          contentContainerStyle={styles.grid}
+          renderItem={({ item, index }) => (
+            <Animatable.View
+              animation="fadeInUp"
+              delay={200 + index * 100}
+              useNativeDriver
+              style={styles.gridItem}
+            >
+              <Card style={styles.categoryCard} onPress={() => navigation.push('Levels', { category: item })}>
+                <Card.Content style={styles.cardContent}>
+                  <Avatar.Icon size={40} icon={categoryIcons[item] || 'folder'} />
+                  <Title style={styles.cardTitle}>{item}</Title>
+                  {completedCategories[item] && <Badge style={styles.badge}>✓</Badge>}
+                </Card.Content>
+              </Card>
+            </Animatable.View>
+          )}
+        />
       </Animatable.View>
     </LinearGradient>
   );
@@ -280,6 +290,14 @@ const styles = StyleSheet.create({
   headerDark: { fontSize: 20, fontWeight: 'bold', marginBottom: 16, color: '#000' },
   paragraph: { color: '#fff' },
   paragraphDark: { color: '#000' },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 16,
+  },
+  statItem: { alignItems: 'center' },
+  statNumber: { fontSize: 24, fontWeight: 'bold', color: '#000' },
+  statLabel: { fontSize: 14, color: '#555' },
   progressContainer: {
     height: 10,
     width: '100%',
@@ -334,5 +352,31 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  grid: {
+    paddingHorizontal: 8,
+    paddingBottom: 16,
+  },
+  gridItem: {
+    flex: 1,
+    margin: 8,
+  },
+  categoryCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    elevation: 4,
+  },
+  cardContent: {
+    alignItems: 'center',
+  },
+  cardTitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  badge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
   },
 });
