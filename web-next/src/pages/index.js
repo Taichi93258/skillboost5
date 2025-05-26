@@ -1,22 +1,34 @@
-import Link from 'next/link';
-import { getAllQuestionIds } from '../lib/questions';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { useAuth } from '@/lib/auth';
 
-export async function getStaticProps() {
-  const ids = await getAllQuestionIds();
-  return { props: { ids } };
-}
+export default function SplashPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
-export default function Home({ ids }) {
+  useEffect(() => {
+    if (!loading) {
+      router.replace(user ? '/categories' : '/login');
+    }
+  }, [user, loading, router]);
+
   return (
-    <main>
-      <h1>Questions</h1>
-      <ul>
-        {ids.map((id) => (
-          <li key={id}>
-            <Link href={`/questions/${id}`}>{id}</Link>
-          </li>
-        ))}
-      </ul>
-    </main>
+    <div className="splash">
+      <h1 className="title">SkillBoost5</h1>
+      <style jsx>{`
+        .splash {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          background: linear-gradient(to bottom, #6a11cb, #2575fc);
+          color: #fff;
+        }
+        .title {
+          font-size: 48px;
+          font-weight: bold;
+        }
+      `}</style>
+    </div>
   );
 }
