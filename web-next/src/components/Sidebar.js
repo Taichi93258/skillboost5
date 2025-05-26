@@ -46,7 +46,7 @@ export default function Sidebar({ isOpen, onClose }) {
           height: 100%;
           background: #fff;
           z-index: 11;
-          padding: 48px 16px 16px;
+          padding: 60px 16px 16px;
           display: flex;
           flex-direction: column;
           gap: 12px;
