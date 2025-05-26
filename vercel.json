@@ -4,7 +4,10 @@
     {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "web-build" }
+      "config": {
+        "distDir": "web-build",
+        "buildCommand": "expo build:web"
+      }
     },
     {
       "src": "api/**/*.js",
