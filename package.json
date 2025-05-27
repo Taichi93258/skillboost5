@@ -11,8 +11,7 @@
     "run:ios": "expo run:ios",
     "web": "expo start --web",
     "build:web": "expo build:web",
-    "deploy:hosting": "npm run build:web && firebase deploy --only hosting",
-    "vercel-build": "npm run build:web"
+    "deploy:hosting": "npm run build:web && firebase deploy --only hosting"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.1.2",
