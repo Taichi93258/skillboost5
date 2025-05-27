@@ -49,3 +49,11 @@ yarn ios              # iOSシミュレータで起動
 ```bash
 yarn web
 ```
+
+## Webビルドおよびデプロイ
+Webアプリをビルドし、Firebase Hostingにデプロイします。
+
+```bash
+yarn build:web
+yarn deploy:hosting
+```
