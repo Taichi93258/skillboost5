@@ -8,7 +8,7 @@ skillboost5は、OpenAI APIとFirebaseを活用して、日替わりの日本語
 - Node.js (推奨 v18.x)
 - Yarn (または npm)
 - Expo CLI (`npm install -g expo-cli`)
- - Firebase CLI (`npm install -g firebase-tools`)
+- Firebase CLI (`npm install -g firebase-tools`)
 
 ## 環境変数の設定
 プロジェクトのルートディレクトリで、`.env.example` をコピーして `.env` を作成し、Firebaseの設定を入力してください。
