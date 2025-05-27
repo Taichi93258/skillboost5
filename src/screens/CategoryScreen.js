@@ -271,7 +271,14 @@ export default function CategoryScreen({ navigation }) {
                 <Card.Content style={styles.cardContent}>
                   <Avatar.Icon size={40} icon={categoryIcons[item] || 'folder'} />
                   <Title style={styles.cardTitle}>{item}</Title>
-                  {completedCategories[item] && <Badge style={styles.badge}>✓</Badge>}
+                  <Badge
+                    style={[
+                      styles.badge,
+                      !completedCategories[item] && styles.badgePlaceholder,
+                    ]}
+                  >
+                    ✓
+                  </Badge>
                 </Card.Content>
               </Card>
             </Animatable.View>
@@ -378,5 +385,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
+  },
+  badgePlaceholder: {
+    opacity: 0.3,
   },
 });
