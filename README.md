@@ -26,3 +26,10 @@ cp .env.example .env.development
 必要に応じて以下の変数を編集してください:
 - `FIREBASE_USE_EMULATOR`: `true` を設定するとローカルのFirebaseエミュレータを使用します。
 - `DAILY_QUESTION_DATE`: クイズを取得する日付を指定します (YYYY-MM-DD)。
+
+## Firebaseエミュレータの起動
+ローカルでFirebase Emulator Suiteを起動します。
+
+```bash
+firebase emulators:start --only auth,firestore,ui
+```
