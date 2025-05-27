@@ -33,3 +33,19 @@ cp .env.example .env.development
 ```bash
 firebase emulators:start --only auth,firestore,ui
 ```
+
+## クライアントアプリの起動 (ローカル動作確認)
+依存関係をインストールし、Expo開発サーバーを起動します。
+
+```bash
+yarn install
+yarn start            # Metro Bundlerを起動
+yarn android          # Androidエミュレータまたは実機で起動
+# または
+yarn ios              # iOSシミュレータで起動
+```
+
+### Web
+```bash
+yarn web
+```
