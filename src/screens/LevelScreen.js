@@ -1,9 +1,9 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
-import { Avatar, IconButton, List, Title } from 'react-native-paper';
+import { Avatar, IconButton, List, Title, Card } from 'react-native-paper';
 import { auth, db } from '../firebase';
 
 const DEFAULT_MAX_LEVELS = 30;
@@ -92,7 +92,14 @@ export default function LevelScreen({ route, navigation }) {
           contentContainerStyle={styles.contentContainer}
           ListHeaderComponent={() => (
             <Animatable.View animation="fadeInDown" duration={800} useNativeDriver>
-              <Title style={styles.header}>「{category}」のレベルを選択してください</Title>
+              <Card style={styles.card}>
+                <Card.Content>
+                  <View style={styles.headerContainer}>
+                    <IconButton icon="tune" color="#000" size={30} style={styles.headerIcon} />
+                    <Title style={styles.header}>「{category}」のレベルを選んで、問題に挑戦しよう！</Title>
+                  </View>
+                </Card.Content>
+              </Card>
             </Animatable.View>
           )}
           data={['Top', ...levels]}
@@ -143,6 +150,13 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1 },
   listSection: { flex: 1 },
   contentContainer: { padding: 16 },
-  header: { fontSize: 20, fontWeight: 'bold', marginBottom: 16, color: '#fff' },
+  header: { flex: 1, fontSize: 20, fontWeight: 'bold', marginBottom: 16, color: '#000' },
+  headerContainer: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
+  headerIcon: { marginRight: 8 },
+  card: {
+    width: '100%',
+    marginBottom: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
   itemText: { fontSize: 18, color: '#fff' },
 });
